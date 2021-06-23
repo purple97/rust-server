@@ -6,10 +6,10 @@ use std::net::{TcpListener, TcpStream};
 use std::path::Path;
 use std::str::from_utf8;
 
-fn string_to_json(jsonstr: &str) -> (&str, &str, &str) {
-    let mut new_str: Vec<&str> = jsonstr.split(": ").collect();
+fn string_to_json(json_str: &str) -> (&str, &str, &str) {
+    let mut new_str: Vec<&str> = json_str.split(": ").collect();
     return (
-        jsonstr,
+        json_str,
         &new_str.get_mut(0).unwrap().trim(),
         &new_str.get_mut(1).unwrap().trim(),
     );
