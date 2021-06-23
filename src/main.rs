@@ -1,3 +1,6 @@
+mod http;
+use http::create_server;
+
 fn main() {
-    println!("Hello, world!");
+    create_server().unwrap()
 }
