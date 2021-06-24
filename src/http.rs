@@ -72,22 +72,23 @@ fn render(filename: &Path) -> String {
 /*
 链接句柄
 */
-pub fn handle_client(mut stream: TcpStream) {
+pub fn handle_client(mut stream: TcpStream) -> Result<()> {
     let mut buffer = [0u8; 1024 * 8];
     // let mut buffer = [0; 512];
     let filename = Path::new("index.html");
-    let contents = render(&filename);
     // 读取请求体内容
-    stream.read(&mut buffer).unwrap();
+    stream.read(&mut buffer)?;
     let context = from_utf8(&buffer).unwrap().to_string();
     let data = query_client_context(&context);
     println!("请求类型：{}", data["method"]);
     /* Response 内容 */
+    let contents = render(&filename);
     let response = set_content(200, contents);
     // 写入内容
-    stream.write(response.as_bytes()).unwrap();
+    stream.write(response.as_bytes())?;
     //刷新socket
-    stream.flush().unwrap();
+    stream.flush()?;
+    Ok(())
 }
 
 /*
@@ -97,7 +98,7 @@ pub fn create_server(port: u32) -> Result<()> {
     let host = format!("127.0.0.1:{}", port);
     let listener = TcpListener::bind(host)?;
     for stream in listener.incoming() {
-        handle_client(stream?);
+        return handle_client(stream?);
     }
     Ok(())
 }
