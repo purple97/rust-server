@@ -5,6 +5,7 @@ use std::io::{Read, Result, Write};
 use std::net::{TcpListener, TcpStream};
 use std::path::Path;
 use std::str::from_utf8;
+// use std::time::Duration;
 
 /*
 kev:value字符串拆解
@@ -74,7 +75,6 @@ fn render(filename: &Path) -> String {
 */
 pub fn handle_client(mut stream: TcpStream) -> Result<()> {
     let mut buffer = [0u8; 1024 * 8];
-    // let mut buffer = [0; 512];
     let filename = Path::new("index.html");
     // 读取请求体内容
     stream.read(&mut buffer)?;
@@ -84,6 +84,10 @@ pub fn handle_client(mut stream: TcpStream) -> Result<()> {
     /* Response 内容 */
     let contents = render(&filename);
     let response = set_content(200, contents);
+
+    // 模拟延时
+    // let dur = Duration::from_millis(3000);
+    // std::thread::sleep(dur);
     // 写入内容
     stream.write(response.as_bytes())?;
     //刷新socket
