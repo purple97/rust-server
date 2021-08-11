@@ -5,6 +5,8 @@ use std::io::{Read, Result, Write};
 use std::net::{TcpListener, TcpStream};
 use std::path::Path;
 use std::str::from_utf8;
+use std::thread;
+use std::thread::JoinHandle;
 // use std::time::Duration;
 
 /*
@@ -73,11 +75,11 @@ fn render(filename: &Path) -> String {
 /*
 链接句柄
 */
-pub fn handle_client(mut stream: TcpStream) -> Result<()> {
+pub fn handle_client(mut stream: TcpStream) {
     let mut buffer = [0u8; 1024 * 8];
     let filename = Path::new("index.html");
     // 读取请求体内容
-    stream.read(&mut buffer)?;
+    stream.read(&mut buffer).unwrap();
     let context = from_utf8(&buffer).unwrap().to_string();
     let data = query_client_context(&context);
     println!("请求类型：{}", data["method"]);
@@ -86,23 +88,33 @@ pub fn handle_client(mut stream: TcpStream) -> Result<()> {
     let response = set_content(200, contents);
 
     // 模拟延时
-    // let dur = Duration::from_millis(3000);
-    // std::thread::sleep(dur);
+    // let dur = Duration::from_millis(10000);
+    // thread::sleep(dur);
     // 写入内容
-    stream.write(response.as_bytes())?;
+    stream.write(response.as_bytes()).unwrap();
     //刷新socket
-    stream.flush()?;
-    Ok(())
+    stream.flush().unwrap();
 }
 
 /*
 创建服务
  */
+
 pub fn create_server(port: u32) -> Result<()> {
     let host = format!("127.0.0.1:{}", port);
     let listener = TcpListener::bind(host)?;
+    let mut thread_vec: Vec<JoinHandle<()>> = Vec::new();
     for stream in listener.incoming() {
-        return handle_client(stream?);
+        //开启线程
+        let handle = thread::spawn(move || {
+            handle_client(stream.unwrap());
+        });
+        thread_vec.push(handle);
     }
+
+    for handle in thread_vec {
+        handle.join().unwrap();
+    }
+
     Ok(())
 }

@@ -31,3 +31,17 @@ stream.read(&mut buffer).unwrap();
 //给流写入内容
 stream.write("<body><h1>Hello world</h1></body>".as_bytes()).unwrap();
 ```
+
+
+
+### 使用actix-web框架
+- https://actix-web.budshome.com/getting-started.html
+- 也可以考虑Rocket框架， 上手容易但是没actix框架性能高;
+
+
+
+
+### 自动重载
+```sh
+cargo watch -x 'run --bin rust-server'
+```
